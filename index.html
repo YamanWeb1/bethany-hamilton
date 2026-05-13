@@ -25,6 +25,8 @@
     border: 1px solid #003366;
     border-radius: 4px;
     font-size: 14px;
+    background: #fff;
+    color: #003366;
   }
   textarea { height: 80px; resize: vertical; }
   button {
@@ -53,10 +55,10 @@
   .comment-content { flex: 1; }
   .admin-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .admin-actions button { padding: 4px 10px; font-size: 12px; }
-  .btn-delete { background-color: #cc0000; }
-  .btn-delete:hover { background-color: #990000; }
-  .btn-edit { background-color: #006600; }
-  .btn-edit:hover { background-color: #004400; }
+  .btn-delete { background-color: #8b0000; }
+  .btn-delete:hover { background-color: #600000; }
+  .btn-edit { background-color: #004d00; }
+  .btn-edit:hover { background-color: #003300; }
   #status { font-size: 13px; margin-top: 6px; min-height: 18px; }
 
   #adminBadge {
@@ -64,35 +66,65 @@
     position: fixed;
     top: 12px; right: 16px;
     background: #003366;
-    color: white;
-    padding: 6px 14px;
-    border-radius: 20px;
+    color: #b0d8f0;
+    padding: 6px 16px;
+    border-radius: 4px;
     font-size: 13px;
     font-weight: bold;
+    border: 1px solid #005599;
     z-index: 999;
+    letter-spacing: 0.5px;
   }
+
   .overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 30, 60, 0.6);
     z-index: 1000;
     justify-content: center;
     align-items: center;
   }
   .overlay.open { display: flex; }
+
   .modal {
-    background: white;
-    padding: 28px 32px;
-    border-radius: 10px;
+    background: #d0ecfa;
+    border: 2px solid #003366;
+    border-radius: 6px;
     width: 340px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+    box-shadow: 0 6px 28px rgba(0,30,80,0.4);
   }
-  .modal h3 { margin-top: 0; color: #003366; }
-  .modal input, .modal textarea { border: 1px solid #003366; width: 100%; box-sizing: border-box; }
-  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
-  .btn-row button { flex: 1; }
-  #adminError { color: #cc0000; font-size: 13px; min-height: 18px; }
+  .modal-header {
+    background: #003366;
+    color: #b0d8f0;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+  }
+  .modal-body {
+    padding: 18px 18px 14px;
+  }
+  .modal-body input,
+  .modal-body textarea {
+    background: #eaf5ff;
+    border: 1px solid #005599;
+    color: #003366;
+  }
+  .modal-body input:focus,
+  .modal-body textarea:focus {
+    outline: none;
+    border-color: #003366;
+    background: #fff;
+  }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-row button { flex: 1; padding: 9px; font-size: 14px; }
+  .btn-cancel { background: #4a6a88; }
+  .btn-cancel:hover { background: #355270; }
+  .btn-save { background: #004d00; }
+  .btn-save:hover { background: #003300; }
+  #adminError { color: #8b0000; font-size: 13px; min-height: 18px; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -102,13 +134,15 @@
 <!-- Admin login modal -->
 <div class="overlay" id="adminOverlay">
   <div class="modal">
-    <h3>🔐 Admin Access</h3>
-    <input type="password" id="adminPassword" placeholder="Enter password"
-           onkeydown="if(event.key==='Enter') submitAdmin()">
-    <div id="adminError"></div>
-    <div class="btn-row">
-      <button onclick="submitAdmin()">Unlock</button>
-      <button onclick="closeAdminModal()" style="background:#888;">Cancel</button>
+    <div class="modal-header">🔐 Admin Access</div>
+    <div class="modal-body">
+      <input type="password" id="adminPassword" placeholder="Enter password"
+             onkeydown="if(event.key==='Enter') submitAdmin()">
+      <div id="adminError"></div>
+      <div class="btn-row">
+        <button onclick="submitAdmin()">Unlock</button>
+        <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -116,12 +150,14 @@
 <!-- Edit comment modal -->
 <div class="overlay" id="editOverlay">
   <div class="modal">
-    <h3>✏️ Edit Comment</h3>
-    <input type="text" id="editName" placeholder="Name">
-    <textarea id="editText" placeholder="Comment"></textarea>
-    <div class="btn-row">
-      <button onclick="saveEdit()" style="background:#006600;">Save</button>
-      <button onclick="closeEditModal()" style="background:#888;">Cancel</button>
+    <div class="modal-header">✏️ Edit Comment</div>
+    <div class="modal-body">
+      <input type="text" id="editName" placeholder="Name">
+      <textarea id="editText" placeholder="Comment"></textarea>
+      <div class="btn-row">
+        <button class="btn-save" onclick="saveEdit()">Save</button>
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -176,9 +212,6 @@ But something inside told me to <b>persevere</b>.</p>
 </center>
 
 <script>
-  /* ── Config ── */
-  const BACKEND = "https://99ad9f18-b5e4-4dc9-bf45-d510969e1a24-00-36a2boctx4ogv.sisko.replit.dev/api";
-  // dairy.js.org → yamanweb1.github.io/bethany-hamilton
   const SUPABASE_URL = "https://xsazkddliwmhbdrhrtiq.supabase.co";
   const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYXprZGRsaXdtaGJkcmhydGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzAzODYsImV4cCI6MjA5NDI0NjM4Nn0.nRUv0vER8Ebw80cz8px9P17Jydwh_2SjHc4Z_9v9jVE";
 
@@ -189,7 +222,6 @@ But something inside told me to <b>persevere</b>.</p>
   let isAdmin = false;
   let editingId = null;
 
-  /* ── Secret key combo: hold C + A + S ── */
   const held = new Set();
   document.addEventListener("keydown", e => {
     held.add(e.key.toUpperCase());
@@ -197,7 +229,6 @@ But something inside told me to <b>persevere</b>.</p>
   });
   document.addEventListener("keyup", e => held.delete(e.key.toUpperCase()));
 
-  /* ── Admin modal ── */
   function openAdminModal() {
     document.getElementById("adminPassword").value = "";
     document.getElementById("adminError").textContent = "";
@@ -220,7 +251,6 @@ But something inside told me to <b>persevere</b>.</p>
     }
   }
 
-  /* ── Edit modal ── */
   function openEditModal(id, name, text) {
     editingId = id;
     document.getElementById("editName").value = name;
@@ -242,44 +272,41 @@ But something inside told me to <b>persevere</b>.</p>
     loadComments();
   }
 
-  /* ── Load comments (direct Supabase — fast) ── */
   async function loadComments() {
     const box = document.getElementById("comments");
     const { data, error } = await db.from("comments").select("*").order("time", { ascending: false });
     if (error || !data) { box.innerHTML = "<p><i>Could not load comments.</i></p>"; return; }
     if (!data.length) { box.innerHTML = "<p><i>No comments yet. Be the first!</i></p>"; return; }
-    box.innerHTML = data.map(c => `
-      <div class="comment-block">
-        <div class="comment-content"><b>${esc(c.name)}:</b> ${esc(c.text)}</div>
-        ${isAdmin ? `
-          <div class="admin-actions">
-            <button class="btn-edit"
-              onclick="openEditModal(${c.id},${JSON.stringify(c.name)},${JSON.stringify(c.text)})">Edit</button>
-            <button class="btn-delete" onclick="deleteComment(${c.id})">Delete</button>
-          </div>` : ""}
-      </div>`).join("");
+    box.innerHTML = data.map(c => {
+      const actions = isAdmin
+        ? '<div class="admin-actions">'
+          + '<button class="btn-edit" onclick="openEditModal(' + c.id + ',' + JSON.stringify(c.name) + ',' + JSON.stringify(c.text) + ')">Edit</button>'
+          + '<button class="btn-delete" onclick="deleteComment(' + c.id + ')">Delete</button>'
+          + '</div>'
+        : "";
+      return '<div class="comment-block"><div class="comment-content"><b>' + esc(c.name) + ':</b> ' + esc(c.text) + '</div>' + actions + '</div>';
+    }).join("");
   }
 
-  /* ── Post comment (direct Supabase) ── */
   async function addComment() {
     const name = document.getElementById("name").value.trim();
     const text = document.getElementById("comment").value.trim();
     const status = document.getElementById("status");
     const btn = document.getElementById("submitBtn");
     if (!name || !text) {
-      status.style.color = "#cc0000";
+      status.style.color = "#8b0000";
       status.textContent = "Please fill in both your name and a comment.";
       return;
     }
     btn.disabled = true;
     status.style.color = "#555";
     status.textContent = "Posting...";
-    const { error } = await db.from("comments").insert({ name, text });
+    const { error } = await db.from("comments").insert({ name: name, text: text, time: new Date().toISOString() });
     if (error) {
-      status.style.color = "#cc0000";
-      status.textContent = "Failed to post. Please try again.";
+      status.style.color = "#8b0000";
+      status.textContent = "Failed to post: " + (error.message || "Please try again.");
     } else {
-      status.style.color = "#006600";
+      status.style.color = "#004d00";
       status.textContent = "✅ Comment posted!";
       document.getElementById("name").value = "";
       document.getElementById("comment").value = "";
@@ -288,7 +315,6 @@ But something inside told me to <b>persevere</b>.</p>
     btn.disabled = false;
   }
 
-  /* ── Delete comment (direct Supabase) ── */
   async function deleteComment(id) {
     if (!confirm("Delete this comment?")) return;
     await db.from("comments").delete().eq("id", id);
@@ -303,4 +329,3 @@ But something inside told me to <b>persevere</b>.</p>
 </script>
 </body>
 </html>
-
