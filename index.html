@@ -59,7 +59,6 @@
   .btn-edit:hover { background-color: #004400; }
   #status { font-size: 13px; margin-top: 6px; min-height: 18px; }
 
-  /* Admin badge */
   #adminBadge {
     display: none;
     position: fixed;
@@ -72,8 +71,6 @@
     font-weight: bold;
     z-index: 999;
   }
-
-  /* Modals */
   .overlay {
     display: none;
     position: fixed;
@@ -92,11 +89,7 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   }
   .modal h3 { margin-top: 0; color: #003366; }
-  .modal input, .modal textarea {
-    border: 1px solid #003366;
-    width: 100%;
-    box-sizing: border-box;
-  }
+  .modal input, .modal textarea { border: 1px solid #003366; width: 100%; box-sizing: border-box; }
   .btn-row { display: flex; gap: 8px; margin-top: 12px; }
   .btn-row button { flex: 1; }
   #adminError { color: #cc0000; font-size: 13px; min-height: 18px; }
@@ -142,15 +135,11 @@
 <hr>
 
 <h3>📖 Dear Diary</h3>
-
 <p>I still remember the day everything changed. I was surfing in <b>Kauai, Hawaii</b>,
 chasing my dream of becoming a professional surfer.</p>
-
 <p>Suddenly, a shark attacked me. I was terrified and in pain.
 But something inside told me to <b>persevere</b>.</p>
-
 <p>Even after losing my arm, I stayed <b>hopeful</b> and <b>determined</b>.</p>
-
 <p>I returned to the ocean just one month later and kept <b>fighting</b> every day.</p>
 
 <center>
@@ -187,23 +176,23 @@ But something inside told me to <b>persevere</b>.</p>
 </center>
 
 <script>
-  /* ── Supabase (handles all data — works on GitHub Pages) ── */
+  /* ── Config ── */
+  const BACKEND = "https://99ad9f18-b5e4-4dc9-bf45-d510969e1a24-00-36a2boctx4ogv.sisko.replit.dev/api";
+  const SUPABASE_URL = "https://xsazkddliwmhbdrhrtiq.supabase.co";
+  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYXprZGRsaXdtaGJkcmhydGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzAzODYsImV4cCI6MjA5NDI0NjM4Nn0.nRUv0vER8Ebw80cz8px9P17Jydwh_2SjHc4Z_9v9jVE";
+
   const { createClient } = supabase;
-  const db = createClient(
-    "https://xsazkddliwmhbdrhrtiq.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYXprZGRsaXdtaGJkcmhydGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzAzODYsImV4cCI6MjA5NDI0NjM4Nn0.nRUv0vER8Ebw80cz8px9P17Jydwh_2SjHc4Z_9v9jVE"
-  );
+  const db = createClient(SUPABASE_URL, ANON_KEY);
 
   const ADMIN_PASSWORD = "Yaman@321";
   let isAdmin = false;
   let editingId = null;
 
-  /* ── Secret key combo: hold C + A + S together ── */
+  /* ── Secret key combo: hold C + A + S ── */
   const held = new Set();
   document.addEventListener("keydown", e => {
     held.add(e.key.toUpperCase());
-    if (held.has("C") && held.has("A") && held.has("S") && !isAdmin)
-      openAdminModal();
+    if (held.has("C") && held.has("A") && held.has("S") && !isAdmin) openAdminModal();
   });
   document.addEventListener("keyup", e => held.delete(e.key.toUpperCase()));
 
@@ -246,22 +235,26 @@ But something inside told me to <b>persevere</b>.</p>
     const name = document.getElementById("editName").value.trim();
     const text = document.getElementById("editText").value.trim();
     if (!name || !text) return;
-    await db.from("comments").update({ name, text }).eq("id", editingId);
+    const res = await fetch(`${BACKEND}/comments/${editingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, text })
+    });
+    if (res.status === 422) {
+      const d = await res.json();
+      alert("🚫 " + d.error);
+      return;
+    }
     closeEditModal();
     loadComments();
   }
 
-  /* ── Load comments ── */
+  /* ── Load comments (direct Supabase — fast) ── */
   async function loadComments() {
     const box = document.getElementById("comments");
-    const { data, error } = await db
-      .from("comments")
-      .select("*")
-      .order("time", { ascending: false });
-
+    const { data, error } = await db.from("comments").select("*").order("time", { ascending: false });
     if (error || !data) { box.innerHTML = "<p><i>Could not load comments.</i></p>"; return; }
     if (!data.length) { box.innerHTML = "<p><i>No comments yet. Be the first!</i></p>"; return; }
-
     box.innerHTML = data.map(c => `
       <div class="comment-block">
         <div class="comment-content"><b>${esc(c.name)}:</b> ${esc(c.text)}</div>
@@ -274,7 +267,7 @@ But something inside told me to <b>persevere</b>.</p>
       </div>`).join("");
   }
 
-  /* ── Post comment ── */
+  /* ── Post comment (via backend for AI moderation) ── */
   async function addComment() {
     const name = document.getElementById("name").value.trim();
     const text = document.getElementById("comment").value.trim();
@@ -287,29 +280,41 @@ But something inside told me to <b>persevere</b>.</p>
     }
     btn.disabled = true;
     status.style.color = "#555";
-    status.textContent = "Posting...";
-    const { error } = await db.from("comments").insert({ name, text, time: Date.now() });
-    if (error) {
+    status.textContent = "Checking content...";
+    try {
+      const res = await fetch(`${BACKEND}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, text })
+      });
+      const data = await res.json();
+      if (res.status === 422) {
+        status.style.color = "#cc0000";
+        status.textContent = "🚫 " + data.error;
+      } else if (!res.ok) {
+        status.style.color = "#cc0000";
+        status.textContent = "Failed to post. Please try again.";
+      } else {
+        status.style.color = "#006600";
+        status.textContent = "✅ Comment posted!";
+        document.getElementById("name").value = "";
+        document.getElementById("comment").value = "";
+        loadComments();
+      }
+    } catch {
       status.style.color = "#cc0000";
-      status.textContent = "Failed to post. Please try again.";
-    } else {
-      status.style.color = "#006600";
-      status.textContent = "✅ Comment posted!";
-      document.getElementById("name").value = "";
-      document.getElementById("comment").value = "";
-      loadComments();
+      status.textContent = "Could not reach server. Please try again.";
     }
     btn.disabled = false;
   }
 
-  /* ── Delete comment ── */
+  /* ── Delete comment (direct Supabase) ── */
   async function deleteComment(id) {
     if (!confirm("Delete this comment?")) return;
     await db.from("comments").delete().eq("id", id);
     loadComments();
   }
 
-  /* ── Escape HTML ── */
   function esc(s) {
     return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
