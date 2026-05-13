@@ -205,7 +205,8 @@ But something inside told me to <b>persevere</b>.</p>
 
 <h3>💬 Comments Section</h3>
 <input id="name" placeholder="Your name">
-<textarea id="comment" placeholder="Write a comment..."></textarea>
+<textarea id="comment" placeholder="Write a comment... (Shift+Enter for new line)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addComment();}"></textarea>
 <button id="submitBtn" onclick="addComment()">Post Comment</button>
 <div id="swearWarning"></div>
 <div id="status"></div>
