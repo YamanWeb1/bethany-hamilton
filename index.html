@@ -205,9 +205,9 @@ But something inside told me to <b>persevere</b>.</p>
 
 <h3>💬 Comments Section</h3>
 <input id="name" placeholder="Your name">
-<textarea id="comment" placeholder="Write a comment... (Enter to post, Shift+Enter for new line)"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addComment();}"></textarea>
+<textarea id="comment" placeholder="Write a comment..."></textarea>
 <button id="submitBtn" onclick="addComment()">Post Comment</button>
+<div id="swearWarning"></div>
 <div id="status"></div>
 
 <hr>
@@ -297,14 +297,44 @@ But something inside told me to <b>persevere</b>.</p>
     }).join("");
   }
 
+  const SWEARS = ["fuck","f u c k","f*ck","fck","fuq","fuk","fucc","fvck","phuck","fucks","fucking","fucked","fucker","fuckers","fuckhead","motherfuck","motherfucker","motherfucking","shit","sh1t","sh!t","shyt","shite","shits","bullshit","horseshit","dipshit","shithead","shitty","shitstorm","ass","a$$","a55","arse","asshole","a$$hole","assh0le","arsehole","asshat","asswipe","jackass","smartass","dumbass","badass","assface","assbag","assclown","asslicker","bitch","b!tch","b1tch","biatch","biotch","bitches","bitching","bitchy","son of a bitch","cunt","c*nt","cunt","cunts","cuntface","bastard","b4stard","bastards","bastardly","dick","d!ck","d1ck","dik","dicks","dickhead","dickface","dickwad","dickweed","dickbag","dicklicker","cock","c0ck","cok","cocks","cockhead","cockface","cocksucker","cockwad","pussy","p*ssy","pussies","pussycat","twat","tw@t","twats","twatwaffle","prick","pr1ck","pricks","prickhead","slut","sl*t","sl0t","sluts","slutty","whore","wh0re","wh*re","whores","whorehouse","skank","skanky","crap","craps","crappy","crapped","crapper","ass","piss","p1ss","pissy","pisser","pissed","pissoff","pisshead","bastardize","retard","r3tard","retarded","retards","retardation","idiot","idiots","moron","morons","moronic","imbecile","imbeciles","stupid","stupidfuck","dumbfuck","dumbfucker","hell","what the hell","go to hell","damn","d@mn","damnit","goddamn","god damn","goddam","goddamnit","crap","craps","crappy","nigger","n1gger","n!gger","nigg3r","niggers","nigga","n!gga","niggas","faggot","f@ggot","fagg0t","fag","f@g","fags","faggots","dyke","d*ke","kike","k!ke","spic","sp!c","chink","ch1nk","gook","g00k","wetback","weback","beaner","cracker","crakker","honky","honkey","spook","raghead","towelhead","sandnigger","negro","negros","jigaboo","coon","darkie","paki","pakis","wop","dago","guido","zipperhead","slope","slant","jap","japs","kraut","krauts","hymie","heeb","koon","porchmonkey","redneck","white trash","trailer trash","hillbilly","hick","bumpkin","hoe","h0e","hoes","hoebag","skank","skanky","trollop","strumpet","harlot","jezebel","hooker","h00ker","hookers","prostitute","tramp","tramps","sleaze","sleazy","pervert","perverts","perv","pedophile","pedo","nonce","molester","rapist","rape","raping","raper","raped","incest","bestiality","beastiality","necrophilia","sodomy","cum","c*m","cumshot","cumshots","cumming","cummed","cumslut","jizz","j!zz","jizzy","spunk","spunky","semen","creampie","anal","an@l","blowjob","blow job","handjob","hand job","rimjob","rim job","boob","boobs","b00bs","titty","tits","t!ts","tiddy","tiddies","nipple","nipples","cock","ballsack","balls","nutsack","dickhead","foreskin","erection","boner","orgasm","ejaculate","masturbate","masturbation","masturbating","wank","wanker","wanking","tosser","toss off","fingering","clitoris","vagina","penis","scrotum","testicle","testicles","anus","rectum","butthole","butt hole","asscrack","ass crack","diarrhea","diarrhoea","erect","erecting","aroused","arousal","pornography","porn","p0rn","porno","xxx","sexting","sexts","sext","sex","s3x","sexy","sexed","sexier","sexual","sexually","intercourse","fornicate","fornication","sodomize","sodomy","fisting","gangbang","gang bang","threesome","orgy","dildo","vibrator","fleshlight","condom","lube","lubricant","fetish","dominatrix","bdsm","bondage","kinky","kink","naughty","nude","nudity","naked","stripping","stripper","lap dance","escort","call girl","camgirl","onlyfans","playboy","penthouse","hustler","smut","sleaze","filth","filthy","perverse","deprave","depraved","obscene","lewd","lewdly","lewdness","lascivious","lecherous","licentious","lasciviousness","debauchery","debauched","degenerate","depraved","deviant","perverted","twisted","sick fuck","motherfucking","clusterfuck","mindfuck","fuckup","fuckface","fuckwit","fuckboy","fuckgirl","fuckstick","fuckwad","fucknut","fucknugget","shitfuck","shitface","shitpants","shitstain","shitbag","shitbird","shitcock","shitdick","shiteater","dicksucker","cocksucking","cocklicker","cockmonger","cockjockey","cockmaster","assblaster","assfucker","asseater","asslick","asslicker","asslicking","assbang","assbanger","assbite","buttfuck","buttsex","buttsex","buttplug","butt plug","shithole","shitholes","hellhole","douchebag","douche","douchebags","douchecanoe","dickhole","dickbag","nutsack","nutjob","fudgepacker","fudge packer","minge","minges","taint","gooch","choad","chode","scrote","scrotey","cumrag","cumstain","jizzface","jizzrag","spunkface","splooge","splooged","cumface","queef","queefs","queefing","farting","fart","farts","buttcrack","butthole","anus","anal","rectum","colon","balls","ballsack","balllicker","dicksmith","dickwhip","nipples","teat","teats","boob","boobies","boobie","titties","hooters","jugs","melons","rack","knockers","funbags","torpedo tits","thundercunts","twatface","twatwaffle","cuntbag","cuntpuddle","cuntnugget","bitchass","bitchface","dumbcunt","stupidcunt","mothercunter","fuckingcunt","goddamnit","godamnit","godfuckingdamnit","holyshit","holy shit","holy crap","holy fuck","jesus fuck","jesus christ","christ almighty","sweet jesus","for fucks sake","for fuck sake","oh fuck","oh shit","oh crap","oh ass","shitballs","shitbrick","shitgibbon","shitlord","shitmonger","shitmuncher","shitnugget","shitpuddle","shitshow","shitstorm","shitstream","clustershit","clusterfuck","fuckstorm","fucknado","rapey","molesty","murder","murderer","kill yourself","kys","go kill yourself","kill urself","end yourself","suicide","suicidal","die already","drop dead","choke on it","eat shit","eat a dick","eat shit and die","fuck yourself","go fuck yourself","shove it","shove it up","up yours","up your ass","stick it up","blow me","suck my","suck it","lick my","lick me","bite me","kiss my ass","kiss my butt","my ass","your ass","your mom","yo mama","your mama","ur mom","ur mama","your mother","yo momma","your mum","your dad","deez nuts","donut","dumbshit","dumb shit","dumb fuck","dumb cunt","dumb ass","dumb bitch","dip shit","dipshit","turd","turdburgler","turd burglar","turdfucker","turdmuncher","pissflap","pissflaps","pisshole","cumhole","suckhole","asshat","ass hat","shitweasel","shit weasel","fuckweasel","fuck weasel","dickweasel","twatwaffle","twat waffle","cuntwaffle","wankstain","wank stain","spunkstain","thundercunt","thundertwat","bitchcunt","cuntbitch"];
+
+  function findSwears(text) {
+    const lower = text.toLowerCase();
+    const found = [];
+    for (const word of SWEARS) {
+      const regex = new RegExp("\\b" + word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + "\\b", "gi");
+      const matches = text.match(regex);
+      if (matches) matches.forEach(m => { if (!found.includes(m.toLowerCase())) found.push(m.toLowerCase()); });
+    }
+    return found;
+  }
+
+  function showSwearWarning(nameSwears, textSwears) {
+    const box = document.getElementById("swearWarning");
+    const all = [...new Set([...nameSwears, ...textSwears])];
+    if (!all.length) { box.innerHTML = ""; return; }
+    const wordSpans = all.map(w => '<span style="color:#8b0000;font-weight:bold;background:#ffe0e0;padding:1px 5px;border-radius:3px;">' + esc(w) + '</span>').join(" ");
+    box.innerHTML = '<div style="margin:6px 0;padding:8px 12px;background:#fff0f0;border:1px solid #cc0000;border-radius:4px;font-size:13px;color:#8b0000;">⚠️ Please remove these words before posting: ' + wordSpans + '</div>';
+  }
+
   async function addComment() {
     const name = document.getElementById("name").value.trim();
     const text = document.getElementById("comment").value.trim();
     const status = document.getElementById("status");
     const btn = document.getElementById("submitBtn");
+    document.getElementById("swearWarning").innerHTML = "";
     if (!name || !text) {
       status.style.color = "#8b0000";
       status.textContent = "Please fill in both your name and a comment.";
+      return;
+    }
+    const nameSwears = findSwears(name);
+    const textSwears = findSwears(text);
+    if (nameSwears.length || textSwears.length) {
+      showSwearWarning(nameSwears, textSwears);
+      status.style.color = "#8b0000";
+      status.textContent = "Your comment contains inappropriate language. Please fix the words above.";
       return;
     }
     btn.disabled = true;
@@ -319,6 +349,7 @@ But something inside told me to <b>persevere</b>.</p>
       status.textContent = "✅ Comment posted!";
       document.getElementById("name").value = "";
       document.getElementById("comment").value = "";
+      document.getElementById("swearWarning").innerHTML = "";
       loadComments();
     }
     btn.disabled = false;
