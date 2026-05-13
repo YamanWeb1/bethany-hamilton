@@ -40,7 +40,15 @@
   }
   button:hover { background-color: #00509e; }
   button:disabled { background-color: #aaa; cursor: not-allowed; }
-  #comments { margin-top: 12px; }
+  #comments {
+    margin-top: 12px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  #comments::-webkit-scrollbar { width: 6px; }
+  #comments::-webkit-scrollbar-track { background: #c5e8f7; border-radius: 4px; }
+  #comments::-webkit-scrollbar-thumb { background: #005599; border-radius: 4px; }
   .comment-block {
     background: white;
     border-left: 4px solid #003366;
@@ -197,7 +205,8 @@ But something inside told me to <b>persevere</b>.</p>
 
 <h3>💬 Comments Section</h3>
 <input id="name" placeholder="Your name">
-<textarea id="comment" placeholder="Write a comment..."></textarea>
+<textarea id="comment" placeholder="Write a comment... (Enter to post, Shift+Enter for new line)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addComment();}"></textarea>
 <button id="submitBtn" onclick="addComment()">Post Comment</button>
 <div id="status"></div>
 
@@ -274,7 +283,7 @@ But something inside told me to <b>persevere</b>.</p>
 
   async function loadComments() {
     const box = document.getElementById("comments");
-    const { data, error } = await db.from("comments").select("*").order("time", { ascending: false });
+    const { data, error } = await db.from("comments").select("*").order("time", { ascending: false }).limit(1000);
     if (error || !data) { box.innerHTML = "<p><i>Could not load comments.</i></p>"; return; }
     if (!data.length) { box.innerHTML = "<p><i>No comments yet. Be the first!</i></p>"; return; }
     box.innerHTML = data.map(c => {
