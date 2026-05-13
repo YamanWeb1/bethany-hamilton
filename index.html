@@ -236,16 +236,8 @@ But something inside told me to <b>persevere</b>.</p>
     const name = document.getElementById("editName").value.trim();
     const text = document.getElementById("editText").value.trim();
     if (!name || !text) return;
-    const res = await fetch(`${BACKEND}/comments/${editingId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, text })
-    });
-    if (res.status === 422) {
-      const d = await res.json();
-      alert("🚫 " + d.error);
-      return;
-    }
+    const { error } = await db.from("comments").update({ name, text }).eq("id", editingId);
+    if (error) { alert("Could not save edit. Try again."); return; }
     closeEditModal();
     loadComments();
   }
@@ -268,7 +260,7 @@ But something inside told me to <b>persevere</b>.</p>
       </div>`).join("");
   }
 
-  /* ── Post comment (via backend for AI moderation) ── */
+  /* ── Post comment (direct Supabase) ── */
   async function addComment() {
     const name = document.getElementById("name").value.trim();
     const text = document.getElementById("comment").value.trim();
@@ -281,30 +273,17 @@ But something inside told me to <b>persevere</b>.</p>
     }
     btn.disabled = true;
     status.style.color = "#555";
-    status.textContent = "Checking content...";
-    try {
-      const res = await fetch(`${BACKEND}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, text })
-      });
-      const data = await res.json();
-      if (res.status === 422) {
-        status.style.color = "#cc0000";
-        status.textContent = "🚫 " + data.error;
-      } else if (!res.ok) {
-        status.style.color = "#cc0000";
-        status.textContent = "Failed to post. Please try again.";
-      } else {
-        status.style.color = "#006600";
-        status.textContent = "✅ Comment posted!";
-        document.getElementById("name").value = "";
-        document.getElementById("comment").value = "";
-        loadComments();
-      }
-    } catch {
+    status.textContent = "Posting...";
+    const { error } = await db.from("comments").insert({ name, text });
+    if (error) {
       status.style.color = "#cc0000";
-      status.textContent = "Could not reach server. Please try again.";
+      status.textContent = "Failed to post. Please try again.";
+    } else {
+      status.style.color = "#006600";
+      status.textContent = "✅ Comment posted!";
+      document.getElementById("name").value = "";
+      document.getElementById("comment").value = "";
+      loadComments();
     }
     btn.disabled = false;
   }
@@ -324,3 +303,4 @@ But something inside told me to <b>persevere</b>.</p>
 </script>
 </body>
 </html>
+
