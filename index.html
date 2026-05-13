@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bethany Hamilton Survival Diary</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body {
+    background-color: #e6f7ff;
+    color: #003366;
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  center { text-align: center; }
+  hr { border: 1px solid #003366; width: 80%; }
+  img { max-width: 100%; border-radius: 8px; }
+  input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+    border: 1px solid #003366;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  textarea { height: 80px; resize: vertical; }
+  button {
+    background-color: #003366;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover { background-color: #00509e; }
+  button:disabled { background-color: #aaa; cursor: not-allowed; }
+  #comments { margin-top: 12px; }
+  .comment-block {
+    background: white;
+    border-left: 4px solid #003366;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .comment-content { flex: 1; }
+  .admin-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .admin-actions button { padding: 4px 10px; font-size: 12px; }
+  .btn-delete { background-color: #cc0000; }
+  .btn-delete:hover { background-color: #990000; }
+  .btn-edit { background-color: #006600; }
+  .btn-edit:hover { background-color: #004400; }
+  #status { font-size: 13px; margin-top: 6px; min-height: 18px; }
+
+  /* Admin badge */
+  #adminBadge {
+    display: none;
+    position: fixed;
+    top: 12px; right: 16px;
+    background: #003366;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    z-index: 999;
+  }
+
+  /* Modals */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: white;
+    padding: 28px 32px;
+    border-radius: 10px;
+    width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+  .modal h3 { margin-top: 0; color: #003366; }
+  .modal input, .modal textarea {
+    border: 1px solid #003366;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-row button { flex: 1; }
+  #adminError { color: #cc0000; font-size: 13px; min-height: 18px; }
+</style>
+</head>
+<body>
+
+<div id="adminBadge">🔑 Admin Mode</div>
+
+<!-- Admin login modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal">
+    <h3>🔐 Admin Access</h3>
+    <input type="password" id="adminPassword" placeholder="Enter password"
+           onkeydown="if(event.key==='Enter') submitAdmin()">
+    <div id="adminError"></div>
+    <div class="btn-row">
+      <button onclick="submitAdmin()">Unlock</button>
+      <button onclick="closeAdminModal()" style="background:#888;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit comment modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <h3>✏️ Edit Comment</h3>
+    <input type="text" id="editName" placeholder="Name">
+    <textarea id="editText" placeholder="Comment"></textarea>
+    <div class="btn-row">
+      <button onclick="saveEdit()" style="background:#006600;">Save</button>
+      <button onclick="closeEditModal()" style="background:#888;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<center>
+  <h1>🌊 Bethany Hamilton's Survival Diary 🦈</h1>
+  <h2>"Courage is stronger than fear"</h2>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Bethany_Hamilton_2019.jpg" width="300" alt="Bethany Hamilton">
+</center>
+
+<hr>
+
+<h3>📖 Dear Diary</h3>
+
+<p>I still remember the day everything changed. I was surfing in <b>Kauai, Hawaii</b>,
+chasing my dream of becoming a professional surfer.</p>
+
+<p>Suddenly, a shark attacked me. I was terrified and in pain.
+But something inside told me to <b>persevere</b>.</p>
+
+<p>Even after losing my arm, I stayed <b>hopeful</b> and <b>determined</b>.</p>
+
+<p>I returned to the ocean just one month later and kept <b>fighting</b> every day.</p>
+
+<center>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Bethany_Hamilton_surfing.jpg" width="300" alt="Bethany Hamilton surfing">
+</center>
+
+<p>Today, I inspire others to never give up no matter how hard life becomes.</p>
+
+<hr>
+
+<h3>🔗 Useful Links</h3>
+<ul>
+  <li><a href="https://bethanyhamilton.com" target="_blank">Official Website</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Bethany_Hamilton" target="_blank">Wikipedia</a></li>
+  <li><a href="https://www.youtube.com/watch?v=R8l8X4q2f1Q" target="_blank">Video</a></li>
+</ul>
+
+<hr>
+
+<h3>💬 Comments Section</h3>
+<input id="name" placeholder="Your name">
+<textarea id="comment" placeholder="Write a comment..."></textarea>
+<button id="submitBtn" onclick="addComment()">Post Comment</button>
+<div id="status"></div>
+
+<hr>
+<h4>All Comments:</h4>
+<div id="comments"><p><i>Loading comments...</i></p></div>
+
+<hr>
+<center>
+  <h3>🌟 Final Message</h3>
+  <p><i>"I don't need easy. I just need possible."</i></p>
+</center>
+
+<script>
+  /* ── Supabase (handles all data — works on GitHub Pages) ── */
+  const { createClient } = supabase;
+  const db = createClient(
+    "https://xsazkddliwmhbdrhrtiq.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYXprZGRsaXdtaGJkcmhydGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzAzODYsImV4cCI6MjA5NDI0NjM4Nn0.nRUv0vER8Ebw80cz8px9P17Jydwh_2SjHc4Z_9v9jVE"
+  );
+
+  const ADMIN_PASSWORD = "Yaman@321";
+  let isAdmin = false;
+  let editingId = null;
+
+  /* ── Secret key combo: hold C + A + S together ── */
+  const held = new Set();
+  document.addEventListener("keydown", e => {
+    held.add(e.key.toUpperCase());
+    if (held.has("C") && held.has("A") && held.has("S") && !isAdmin)
+      openAdminModal();
+  });
+  document.addEventListener("keyup", e => held.delete(e.key.toUpperCase()));
+
+  /* ── Admin modal ── */
+  function openAdminModal() {
+    document.getElementById("adminPassword").value = "";
+    document.getElementById("adminError").textContent = "";
+    document.getElementById("adminOverlay").classList.add("open");
+    setTimeout(() => document.getElementById("adminPassword").focus(), 50);
+  }
+  function closeAdminModal() {
+    document.getElementById("adminOverlay").classList.remove("open");
+  }
+  function submitAdmin() {
+    if (document.getElementById("adminPassword").value === ADMIN_PASSWORD) {
+      isAdmin = true;
+      closeAdminModal();
+      document.getElementById("adminBadge").style.display = "block";
+      loadComments();
+    } else {
+      document.getElementById("adminError").textContent = "Incorrect password.";
+      document.getElementById("adminPassword").value = "";
+      document.getElementById("adminPassword").focus();
+    }
+  }
+
+  /* ── Edit modal ── */
+  function openEditModal(id, name, text) {
+    editingId = id;
+    document.getElementById("editName").value = name;
+    document.getElementById("editText").value = text;
+    document.getElementById("editOverlay").classList.add("open");
+    setTimeout(() => document.getElementById("editName").focus(), 50);
+  }
+  function closeEditModal() {
+    document.getElementById("editOverlay").classList.remove("open");
+    editingId = null;
+  }
+  async function saveEdit() {
+    const name = document.getElementById("editName").value.trim();
+    const text = document.getElementById("editText").value.trim();
+    if (!name || !text) return;
+    await db.from("comments").update({ name, text }).eq("id", editingId);
+    closeEditModal();
+    loadComments();
+  }
+
+  /* ── Load comments ── */
+  async function loadComments() {
+    const box = document.getElementById("comments");
+    const { data, error } = await db
+      .from("comments")
+      .select("*")
+      .order("time", { ascending: false });
+
+    if (error || !data) { box.innerHTML = "<p><i>Could not load comments.</i></p>"; return; }
+    if (!data.length) { box.innerHTML = "<p><i>No comments yet. Be the first!</i></p>"; return; }
+
+    box.innerHTML = data.map(c => `
+      <div class="comment-block">
+        <div class="comment-content"><b>${esc(c.name)}:</b> ${esc(c.text)}</div>
+        ${isAdmin ? `
+          <div class="admin-actions">
+            <button class="btn-edit"
+              onclick="openEditModal(${c.id},${JSON.stringify(c.name)},${JSON.stringify(c.text)})">Edit</button>
+            <button class="btn-delete" onclick="deleteComment(${c.id})">Delete</button>
+          </div>` : ""}
+      </div>`).join("");
+  }
+
+  /* ── Post comment ── */
+  async function addComment() {
+    const name = document.getElementById("name").value.trim();
+    const text = document.getElementById("comment").value.trim();
+    const status = document.getElementById("status");
+    const btn = document.getElementById("submitBtn");
+    if (!name || !text) {
+      status.style.color = "#cc0000";
+      status.textContent = "Please fill in both your name and a comment.";
+      return;
+    }
+    btn.disabled = true;
+    status.style.color = "#555";
+    status.textContent = "Posting...";
+    const { error } = await db.from("comments").insert({ name, text, time: Date.now() });
+    if (error) {
+      status.style.color = "#cc0000";
+      status.textContent = "Failed to post. Please try again.";
+    } else {
+      status.style.color = "#006600";
+      status.textContent = "✅ Comment posted!";
+      document.getElementById("name").value = "";
+      document.getElementById("comment").value = "";
+      loadComments();
+    }
+    btn.disabled = false;
+  }
+
+  /* ── Delete comment ── */
+  async function deleteComment(id) {
+    if (!confirm("Delete this comment?")) return;
+    await db.from("comments").delete().eq("id", id);
+    loadComments();
+  }
+
+  /* ── Escape HTML ── */
+  function esc(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  loadComments();
+</script>
+</body>
+</html>
