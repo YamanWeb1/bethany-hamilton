@@ -206,7 +206,7 @@ But something inside told me to <b>persevere</b>.</p>
 <h3>💬 Comments Section</h3>
 <input id="name" placeholder="Your name">
 <textarea id="comment" placeholder="Write a comment... (Shift+Enter for new line)"
-          onkeydown="if(event.key==='Enter'){if(event.shiftKey){event.preventDefault();var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.substring(0,s)+'\n'+this.value.substring(e);this.selectionStart=this.selectionEnd=s+1;}else{event.preventDefault();addComment();}}"></textarea>
+          onkeydown="if(event.key==='Enter'){event.preventDefault();if(event.shiftKey){var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.substring(0,s)+'\n'+this.value.substring(e);this.selectionStart=this.selectionEnd=s+1;}else{addComment();}}"></textarea>
 <button id="submitBtn" onclick="addComment()">Post Comment</button>
 <div id="swearWarning"></div>
 <div id="status"></div>
@@ -231,7 +231,6 @@ But something inside told me to <b>persevere</b>.</p>
   const ADMIN_PASSWORD = "Yaman@321";
   let isAdmin = false;
   let editingId = null;
-  let editingTime = null;
 
   const held = new Set();
   document.addEventListener("keydown", e => {
@@ -262,9 +261,8 @@ But something inside told me to <b>persevere</b>.</p>
     }
   }
 
-  function openEditModal(id, name, text, time) {
+  function openEditModal(id, name, text) {
     editingId = id;
-    editingTime = time;
     document.getElementById("editName").value = name;
     document.getElementById("editText").value = text;
     document.getElementById("editOverlay").classList.add("open");
@@ -273,14 +271,13 @@ But something inside told me to <b>persevere</b>.</p>
   function closeEditModal() {
     document.getElementById("editOverlay").classList.remove("open");
     editingId = null;
-    editingTime = null;
   }
   async function saveEdit() {
     const name = document.getElementById("editName").value.trim();
     const text = document.getElementById("editText").value.trim();
     if (!name || !text) return;
-    await db.from("comments").delete().eq("id", editingId);
-    await db.from("comments").insert({ name: name, text: text, time: editingTime || Date.now() });
+    const { error } = await db.from("comments").update({ name, text }).eq("id", editingId);
+    if (error) { alert("Could not save edit. Try again."); return; }
     closeEditModal();
     loadComments();
   }
@@ -293,7 +290,7 @@ But something inside told me to <b>persevere</b>.</p>
     box.innerHTML = data.map(c => {
       const actions = isAdmin
         ? '<div class="admin-actions">'
-          + '<button class="btn-edit" onclick="openEditModal(' + c.id + ',' + JSON.stringify(c.name) + ',' + JSON.stringify(c.text) + ',' + c.time + ')">Edit</button>'
+          + '<button class="btn-edit" onclick="openEditModal(' + c.id + ',' + JSON.stringify(c.name) + ',' + JSON.stringify(c.text) + ')">Edit</button>'
           + '<button class="btn-delete" onclick="deleteComment(' + c.id + ')">Delete</button>'
           + '</div>'
         : "";
