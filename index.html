@@ -301,10 +301,10 @@ But something inside told me to <b>persevere</b>.</p>
     btn.disabled = true;
     status.style.color = "#555";
     status.textContent = "Posting...";
-    const { error } = await db.from("comments").insert({ name: name, text: text, time: new Date().toISOString() });
+    const { error } = await db.from("comments").insert({ name: name, text: text, time: Date.now() });
     if (error) {
       status.style.color = "#8b0000";
-      status.textContent = "Failed to post: " + (error.message || "Please try again.");
+      status.textContent = "Failed to post. Please try again.";
     } else {
       status.style.color = "#004d00";
       status.textContent = "✅ Comment posted!";
